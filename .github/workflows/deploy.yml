@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'robotsthink-ai-news/**'
 
 jobs:
   deploy:
