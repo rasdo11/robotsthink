@@ -3,7 +3,7 @@ name: Deploy Plugin to WordPress
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'robotsthink-ai-news/**'
 
