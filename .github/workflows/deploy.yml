@@ -19,5 +19,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./robotsthink-ai-news/
-          server-dir: robotsthink.com/wp-content/plugins/robotsthink-ai-news/
+          server-dir: wp-content/plugins/robotsthink-ai-news/
           dangerous-clean-slate: false
