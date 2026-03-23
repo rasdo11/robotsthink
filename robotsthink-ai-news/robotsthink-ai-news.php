@@ -11,10 +11,11 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'RTN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'RTN_VERSION', '1.0.0' );
+define( 'RTN_VERSION', '1.1.0' );
 
 require_once RTN_PLUGIN_DIR . 'includes/class-news-fetcher.php';
 require_once RTN_PLUGIN_DIR . 'includes/class-think-piece-generator.php';
+require_once RTN_PLUGIN_DIR . 'includes/class-photo-fetcher.php';
 require_once RTN_PLUGIN_DIR . 'includes/class-post-publisher.php';
 require_once RTN_PLUGIN_DIR . 'includes/class-scheduler.php';
 require_once RTN_PLUGIN_DIR . 'includes/class-settings.php';

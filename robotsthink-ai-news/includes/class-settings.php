@@ -19,12 +19,15 @@ class RTN_Settings {
     }
 
     public static function register_settings() {
-        register_setting( 'rtn_settings_group', 'rtn_newsapi_key', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'rtn_settings_group', 'rtn_claude_api_key', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'rtn_settings_group', 'rtn_news_category', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'rtn_settings_group', 'rtn_post_author', array( 'sanitize_callback' => 'absint' ) );
-        register_setting( 'rtn_settings_group', 'rtn_news_tag', array( 'sanitize_callback' => 'sanitize_text_field' ) );
-        register_setting( 'rtn_settings_group', 'rtn_thinkpiece_tag', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_newsapi_key',        array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_claude_api_key',     array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_unsplash_key',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_news_category',      array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_post_author',        array( 'sanitize_callback' => 'absint' ) );
+        register_setting( 'rtn_settings_group', 'rtn_post_status',        array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_article_word_count', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_news_tag',           array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_thinkpiece_tag',     array( 'sanitize_callback' => 'sanitize_text_field' ) );
     }
 
     public static function render_page() {
@@ -51,10 +54,35 @@ class RTN_Settings {
                         </td>
                     </tr>
                     <tr>
+                        <th>Unsplash API Key</th>
+                        <td>
+                            <input type="password" name="rtn_unsplash_key" value="<?php echo esc_attr( get_option( 'rtn_unsplash_key' ) ); ?>" class="regular-text" />
+                            <p class="description">Optional. Get a free key at <a href="https://unsplash.com/developers" target="_blank">unsplash.com/developers</a>. When set, a featured photo is automatically fetched and attached to each think piece.</p>
+                        </td>
+                    </tr>
+                    <tr>
                         <th>News Search Topic</th>
                         <td>
                             <input type="text" name="rtn_news_category" value="<?php echo esc_attr( get_option( 'rtn_news_category', 'artificial intelligence' ) ); ?>" class="regular-text" />
                             <p class="description">e.g. "artificial intelligence", "AI", "machine learning"</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Post Status</th>
+                        <td>
+                            <select name="rtn_post_status">
+                                <?php $current_status = get_option( 'rtn_post_status', 'draft' ); ?>
+                                <option value="draft"   <?php selected( $current_status, 'draft' ); ?>>Draft (review before publishing)</option>
+                                <option value="publish" <?php selected( $current_status, 'publish' ); ?>>Publish immediately</option>
+                            </select>
+                            <p class="description">Default is <strong>Draft</strong> — posts go to your queue for review before going live.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Article Word Count</th>
+                        <td>
+                            <input type="text" name="rtn_article_word_count" value="<?php echo esc_attr( get_option( 'rtn_article_word_count', '900-1200' ) ); ?>" class="small-text" />
+                            <p class="description">Target word count range for think piece articles (e.g. <code>900-1200</code> or <code>1000-1500</code>).</p>
                         </td>
                     </tr>
                     <tr>
