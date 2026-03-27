@@ -4,19 +4,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class RTN_News_Fetcher {
 
     public static function fetch( $topic = 'artificial intelligence', $count = 5 ) {
-        $api_key = get_option( 'rtn_newsapi_key' );
+        $api_key = get_option( 'rtn_guardian_api_key' );
 
         if ( empty( $api_key ) ) {
-            return new WP_Error( 'missing_key', 'NewsAPI key is not configured.' );
+            return new WP_Error( 'missing_key', 'Guardian API key is not configured.' );
         }
 
         $url = add_query_arg( array(
-            'q'        => urlencode( $topic ),
-            'language' => 'en',
-            'sortBy'   => 'publishedAt',
-            'pageSize' => intval( $count ),
-            'apiKey'   => $api_key,
-        ), 'https://newsapi.org/v2/everything' );
+            'q'            => urlencode( $topic ),
+            'lang'         => 'en',
+            'order-by'     => 'newest',
+            'page-size'    => intval( $count ),
+            'show-fields'  => 'trailText,publication',
+            'api-key'      => $api_key,
+        ), 'https://content.guardianapis.com/search' );
 
         $response = wp_remote_get( $url, array( 'timeout' => 15 ) );
 
@@ -26,19 +27,19 @@ class RTN_News_Fetcher {
 
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-        if ( empty( $body['articles'] ) ) {
-            return new WP_Error( 'no_articles', 'No articles returned from NewsAPI.' );
+        if ( empty( $body['response']['results'] ) ) {
+            return new WP_Error( 'no_articles', 'No articles returned from The Guardian.' );
         }
 
         $articles = array();
-        foreach ( $body['articles'] as $article ) {
-            if ( empty( $article['title'] ) || $article['title'] === '[Removed]' ) continue;
+        foreach ( $body['response']['results'] as $article ) {
+            if ( empty( $article['webTitle'] ) ) continue;
             $articles[] = array(
-                'title'       => $article['title'],
-                'description' => $article['description'] ?? '',
-                'url'         => $article['url'],
-                'source'      => $article['source']['name'] ?? 'Unknown',
-                'published'   => $article['publishedAt'] ?? '',
+                'title'       => $article['webTitle'],
+                'description' => $article['fields']['trailText'] ?? '',
+                'url'         => $article['webUrl'],
+                'source'      => 'The Guardian',
+                'published'   => $article['webPublicationDate'] ?? '',
             );
         }
 
