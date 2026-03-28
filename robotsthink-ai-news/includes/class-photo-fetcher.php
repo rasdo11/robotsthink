@@ -47,14 +47,28 @@ class RTN_Photo_Fetcher {
         $photographer = ! empty( $photo['user']['name'] ) ? $photo['user']['name'] : 'Unsplash';
         $photo_link   = ! empty( $photo['links']['html'] ) ? $photo['links']['html'] : 'https://unsplash.com';
 
-        // Download image into WP media library and attach to post
+        // Download image into WP media library and attach to post.
+        // Unsplash URLs have no file extension before the query string, which causes
+        // media_sideload_image() to fail its regex check. Use download_url() +
+        // media_handle_sideload() directly to bypass that restriction.
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
-        $attachment_id = media_sideload_image( $image_url, $post_id, sanitize_text_field( $alt_text ), 'id' );
+        $tmp = download_url( $image_url );
+        if ( is_wp_error( $tmp ) ) {
+            return $tmp;
+        }
+
+        $file_array = array(
+            'name'     => 'unsplash-' . sanitize_title( $alt_text ) . '.jpg',
+            'tmp_name' => $tmp,
+        );
+
+        $attachment_id = media_handle_sideload( $file_array, $post_id, sanitize_text_field( $alt_text ) );
 
         if ( is_wp_error( $attachment_id ) ) {
+            @unlink( $tmp );
             return $attachment_id;
         }
 
