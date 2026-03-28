@@ -62,7 +62,7 @@ class RTN_Post_Publisher {
             if ( $unsplash_key ) {
                 $photo_result = RTN_Photo_Fetcher::attach_featured_image( $post_id, $think_piece['featured_image_query'], $think_piece['title'] );
                 if ( is_wp_error( $photo_result ) ) {
-                    error_log( '[RobotsThink] Photo fetch failed: ' . $photo_result->get_error_message() );
+                    return new WP_Error( 'photo_failed', 'Post created (ID ' . $post_id . ') but photo failed: ' . $photo_result->get_error_message() );
                 }
             }
         }

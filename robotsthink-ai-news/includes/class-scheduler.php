@@ -55,11 +55,16 @@ class RTN_Scheduler {
 
         $think_post_id = RTN_Post_Publisher::publish_think_piece( $think_piece );
         if ( is_wp_error( $think_post_id ) ) {
-            error_log( '[RobotsThink] Think piece publish failed: ' . $think_post_id->get_error_message() );
-            return array( 'success' => false, 'message' => 'Think piece publish failed: ' . $think_post_id->get_error_message() );
+            $code = $think_post_id->get_error_code();
+            $msg  = $think_post_id->get_error_message();
+            // photo_failed means the post was created but image attachment failed — treat as partial success
+            if ( $code === 'photo_failed' ) {
+                return array( 'success' => true, 'message' => 'Published news roundup (post #' . $news_post_id . ') and think piece, but: ' . $msg );
+            }
+            error_log( '[RobotsThink] Think piece publish failed: ' . $msg );
+            return array( 'success' => false, 'message' => 'Think piece publish failed: ' . $msg );
         }
 
-        error_log( '[RobotsThink] Cycle complete. News post #' . $news_post_id . ', Think piece #' . $think_post_id );
         return array(
             'success' => true,
             'message' => 'Published news roundup (post #' . $news_post_id . ') and think piece (post #' . $think_post_id . ').',
