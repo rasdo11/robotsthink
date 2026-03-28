@@ -129,6 +129,65 @@ class RTN_Settings {
             ?>
 
             <hr />
+            <h2>Test Unsplash Connection</h2>
+            <p>Check whether your Unsplash key is working and that WordPress can download the image:</p>
+            <form method="post">
+                <?php wp_nonce_field( 'rtn_test_unsplash', 'rtn_unsplash_nonce' ); ?>
+                <input type="hidden" name="rtn_test_unsplash" value="1" />
+                <?php submit_button( 'Test Unsplash', 'secondary' ); ?>
+            </form>
+            <?php
+            if ( isset( $_POST['rtn_test_unsplash'] ) && check_admin_referer( 'rtn_test_unsplash', 'rtn_unsplash_nonce' ) ) {
+                $lines = array();
+                $api_key = get_option( 'rtn_unsplash_key' );
+
+                if ( empty( $api_key ) ) {
+                    echo '<div class="notice notice-error"><p>No Unsplash key configured.</p></div>';
+                } else {
+                    $url = add_query_arg( array(
+                        'query'       => 'artificial+intelligence',
+                        'orientation' => 'landscape',
+                        'per_page'    => 1,
+                    ), 'https://api.unsplash.com/photos/random' );
+
+                    $response = wp_remote_get( $url, array(
+                        'timeout' => 15,
+                        'headers' => array( 'Authorization' => 'Client-ID ' . $api_key ),
+                    ) );
+
+                    if ( is_wp_error( $response ) ) {
+                        $lines[] = 'API request failed: ' . $response->get_error_message();
+                    } else {
+                        $http_code = wp_remote_retrieve_response_code( $response );
+                        $body      = json_decode( wp_remote_retrieve_body( $response ), true );
+                        $lines[]   = 'Unsplash HTTP status: ' . $http_code;
+
+                        if ( $http_code !== 200 ) {
+                            $lines[] = 'Error from Unsplash: ' . ( $body['errors'][0] ?? wp_remote_retrieve_body( $response ) );
+                        } elseif ( empty( $body['urls']['regular'] ) ) {
+                            $lines[] = 'No image URL in response. Keys returned: ' . implode( ', ', array_keys( $body ) );
+                        } else {
+                            $image_url = $body['urls']['regular'];
+                            $lines[]   = 'Image URL: ' . $image_url;
+                            $lines[]   = 'wp_http_validate_url result: ' . ( wp_http_validate_url( $image_url ) ? 'PASS' : 'FAIL' );
+                            $lines[]   = 'esc_url_raw result: ' . esc_url_raw( $image_url );
+
+                            $dl = wp_remote_get( $image_url, array( 'timeout' => 15 ) );
+                            if ( is_wp_error( $dl ) ) {
+                                $lines[] = 'Image download failed: ' . $dl->get_error_message();
+                            } else {
+                                $lines[] = 'Image download HTTP status: ' . wp_remote_retrieve_response_code( $dl );
+                                $lines[] = 'Content-Type: ' . wp_remote_retrieve_header( $dl, 'content-type' );
+                            }
+                        }
+                    }
+
+                    echo '<div class="notice notice-info"><p><strong>Unsplash Diagnostic:</strong><br>' . nl2br( esc_html( implode( "\n", $lines ) ) ) . '</p></div>';
+                }
+            }
+            ?>
+
+            <hr />
             <h2>Next Scheduled Run</h2>
             <?php
             $next = wp_next_scheduled( 'rtn_auto_post_event' );
