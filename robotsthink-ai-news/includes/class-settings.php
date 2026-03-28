@@ -115,15 +115,24 @@ class RTN_Settings {
 
             <hr />
             <h2>Manual Trigger</h2>
-            <p>Run the auto-post cycle right now (for testing):</p>
-            <form method="post">
-                <?php wp_nonce_field( 'rtn_manual_run', 'rtn_nonce' ); ?>
-                <input type="hidden" name="rtn_manual_run" value="1" />
-                <?php submit_button( 'Run Now', 'secondary' ); ?>
+            <p>Run either cycle right now:</p>
+            <form method="post" style="display:inline-block; margin-right:12px;">
+                <?php wp_nonce_field( 'rtn_run_news', 'rtn_news_nonce' ); ?>
+                <input type="hidden" name="rtn_run_news" value="1" />
+                <?php submit_button( 'Run News Roundup', 'secondary', 'rtn_run_news_btn', false ); ?>
+            </form>
+            <form method="post" style="display:inline-block;">
+                <?php wp_nonce_field( 'rtn_run_think_piece', 'rtn_think_nonce' ); ?>
+                <input type="hidden" name="rtn_run_think_piece" value="1" />
+                <?php submit_button( 'Run Think Piece', 'secondary', 'rtn_run_think_btn', false ); ?>
             </form>
             <?php
-            if ( isset( $_POST['rtn_manual_run'] ) && check_admin_referer( 'rtn_manual_run', 'rtn_nonce' ) ) {
-                $result = RTN_Scheduler::run_cycle();
+            if ( isset( $_POST['rtn_run_news'] ) && check_admin_referer( 'rtn_run_news', 'rtn_news_nonce' ) ) {
+                $result = RTN_Scheduler::run_news_cycle();
+                echo '<div class="notice notice-' . ( $result['success'] ? 'success' : 'error' ) . '"><p>' . esc_html( $result['message'] ) . '</p></div>';
+            }
+            if ( isset( $_POST['rtn_run_think_piece'] ) && check_admin_referer( 'rtn_run_think_piece', 'rtn_think_nonce' ) ) {
+                $result = RTN_Scheduler::run_think_piece_cycle();
                 echo '<div class="notice notice-' . ( $result['success'] ? 'success' : 'error' ) . '"><p>' . esc_html( $result['message'] ) . '</p></div>';
             }
             ?>
@@ -188,13 +197,14 @@ class RTN_Settings {
             ?>
 
             <hr />
-            <h2>Next Scheduled Run</h2>
+            <h2>Scheduled Runs</h2>
             <?php
-            $next = wp_next_scheduled( 'rtn_auto_post_event' );
-            if ( $next ) {
-                echo '<p>Next run: <strong>' . esc_html( get_date_from_gmt( date( 'Y-m-d H:i:s', $next ), 'F j, Y g:i a' ) ) . '</strong></p>';
-            } else {
-                echo '<p>Not scheduled. Deactivate and reactivate the plugin to reschedule.</p>';
+            $next_news  = wp_next_scheduled( RTN_Scheduler::NEWS_CRON_HOOK );
+            $next_think = wp_next_scheduled( RTN_Scheduler::THINK_CRON_HOOK );
+            echo '<p>News roundup (Mondays): <strong>' . ( $next_news  ? esc_html( get_date_from_gmt( date( 'Y-m-d H:i:s', $next_news ),  'F j, Y g:i a' ) ) : 'Not scheduled' ) . '</strong></p>';
+            echo '<p>Think piece (Wednesdays): <strong>' . ( $next_think ? esc_html( get_date_from_gmt( date( 'Y-m-d H:i:s', $next_think ), 'F j, Y g:i a' ) ) : 'Not scheduled' ) . '</strong></p>';
+            if ( ! $next_news || ! $next_think ) {
+                echo '<p>Deactivate and reactivate the plugin to reschedule missing events.</p>';
             }
             ?>
         </div>
