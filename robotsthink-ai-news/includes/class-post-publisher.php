@@ -60,7 +60,10 @@ class RTN_Post_Publisher {
         if ( ! is_wp_error( $post_id ) && ! empty( $think_piece['featured_image_query'] ) ) {
             $unsplash_key = get_option( 'rtn_unsplash_key' );
             if ( $unsplash_key ) {
-                RTN_Photo_Fetcher::attach_featured_image( $post_id, $think_piece['featured_image_query'], $think_piece['title'] );
+                $photo_result = RTN_Photo_Fetcher::attach_featured_image( $post_id, $think_piece['featured_image_query'], $think_piece['title'] );
+                if ( is_wp_error( $photo_result ) ) {
+                    error_log( '[RobotsThink] Photo fetch failed: ' . $photo_result->get_error_message() );
+                }
             }
         }
 
