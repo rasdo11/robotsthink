@@ -19,7 +19,7 @@ class RTN_Settings {
     }
 
     public static function register_settings() {
-        register_setting( 'rtn_settings_group', 'rtn_newsapi_key',        array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'rtn_settings_group', 'rtn_guardian_api_key',   array( 'sanitize_callback' => 'sanitize_text_field' ) );
         register_setting( 'rtn_settings_group', 'rtn_claude_api_key',     array( 'sanitize_callback' => 'sanitize_text_field' ) );
         register_setting( 'rtn_settings_group', 'rtn_unsplash_key',       array( 'sanitize_callback' => 'sanitize_text_field' ) );
         register_setting( 'rtn_settings_group', 'rtn_news_category',      array( 'sanitize_callback' => 'sanitize_text_field' ) );
@@ -40,10 +40,10 @@ class RTN_Settings {
                 <?php settings_fields( 'rtn_settings_group' ); ?>
                 <table class="form-table">
                     <tr>
-                        <th>NewsAPI Key</th>
+                        <th>Guardian API Key</th>
                         <td>
-                            <input type="password" name="rtn_newsapi_key" value="<?php echo esc_attr( get_option( 'rtn_newsapi_key' ) ); ?>" class="regular-text" />
-                            <p class="description">Get a free key at <a href="https://newsapi.org" target="_blank">newsapi.org</a></p>
+                            <input type="password" name="rtn_guardian_api_key" value="<?php echo esc_attr( get_option( 'rtn_guardian_api_key' ) ); ?>" class="regular-text" />
+                            <p class="description">Get a free key at <a href="https://open-platform.theguardian.com/access/" target="_blank">open-platform.theguardian.com</a></p>
                         </td>
                     </tr>
                     <tr>
