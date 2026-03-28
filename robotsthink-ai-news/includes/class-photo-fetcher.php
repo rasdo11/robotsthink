@@ -43,7 +43,7 @@ class RTN_Photo_Fetcher {
             return new WP_Error( 'unsplash_error', 'No photo returned from Unsplash for query: ' . $query );
         }
 
-        $image_url   = $photo['urls']['regular'];
+        $image_url   = esc_url_raw( $photo['urls']['regular'] );
         $photographer = ! empty( $photo['user']['name'] ) ? $photo['user']['name'] : 'Unsplash';
         $photo_link   = ! empty( $photo['links']['html'] ) ? $photo['links']['html'] : 'https://unsplash.com';
 
